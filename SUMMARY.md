@@ -254,6 +254,19 @@ ground truth and by the simulations); `landmark.detect_landmarks` / `peaks_as_la
 PyQtGraph backend that was requested explicitly, so they stay unless the rule is applied to
 plotting too (then `result.plot` would move to `notebooks/util.py` as well).</span>
 
+### <span style="color:#ffd400">2.6c Releasing to PyPI (2026-09-29)</span>
+
+<span style="color:#ffd400">`.github/workflows/push_pypi.yml` publishes on a published GitHub
+release: it re-runs the tests on the released commit, builds sdist + wheel, checks that the
+release tag equals `v<version>` (or `<version>`) from `pyproject.toml`, and publishes with
+trusted publishing (`id-token: write`, environment `pypi`, `skip-existing: true`). One-time
+setup on pypi.org: Account → Publishing → add a pending publisher (owner `0todd0000`,
+repository `registration1d`, workflow `push_pypi.yml`, environment `pypi`). Release procedure:
+bump `version` in `pyproject.toml` and `__init__.py`, commit, push, create a GitHub release
+with tag `v<version>`. `pyproject.toml` uses the SPDX `license` string with `license-files`
+(setuptools ≥ 77) and a `MANIFEST.in` that keeps notebooks, tests and paper out of the sdist;
+`python -m build` + `twine check` pass locally, and the wheel (70 KB) imports cleanly.</span>
+
 ### 2.7 Things learned the hard way (worth keeping in mind)
 
 - A registration warp should be reported together with its convention.

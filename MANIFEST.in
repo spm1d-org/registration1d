@@ -1,0 +1,6 @@
+include LICENSE README.md pyproject.toml
+recursive-include src/registration1d *.py
+prune tests
+prune notebooks
+prune paper
+prune .github

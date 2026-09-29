@@ -7,6 +7,11 @@ It depends only on `numpy`, `scipy` and `matplotlib`; the registration
 algorithms are implemented from their mathematical definitions, so no other
 registration package needs to be installed.
 
+## Installation
+
+    pip install registration1d            # from PyPI (numpy, scipy, matplotlib)
+    pip install "registration1d[qt]"      # + pyqtgraph for the PyQtGraph backend (add PyQt6 or PySide6)
+
 ## Installation (development)
 
     git clone https://github.com/0todd0000/registration1d.git
