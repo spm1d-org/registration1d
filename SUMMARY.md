@@ -1,6 +1,6 @@
 # registration1d — summary of findings and suggestions for further development
 
-Date: 2026-09-29. Status: preliminary package (v0.0.2), 45 tests,
+Date: 2026-09-29. Status: preliminary package (v0.0.2), 47 tests,
 ten executed notebooks; source moved to the src layout for the public repository.
 
 <span style="color:#ffd400">**Highlighted text (yellow) marks additions and changes made after the review
@@ -62,7 +62,7 @@ Layout:
                       datasets, make_jikudata_notebook.py); power_simulated_datasets
                       (false-positive rate and power after registration, power1d
                       simulations, make_power_notebook.py + cached results .pkl)
-    tests/            pytest suite (45 tests)
+    tests/            pytest suite (47 tests)
     TESTS.md          test strategy;  PAPER-IDEAS.md  publication ideas
 
 ## 2. Key findings
@@ -266,6 +266,19 @@ bump `version` in `pyproject.toml` and `__init__.py`, commit, push, create a Git
 with tag `v<version>`. `pyproject.toml` uses the SPDX `license` string with `license-files`
 (setuptools ≥ 77) and a `MANIFEST.in` that keeps notebooks, tests and paper out of the sdist;
 `python -m build` + `twine check` pass locally, and the wheel (70 KB) imports cleanly.</span>
+
+### <span style="color:#ffd400">2.6d Serialisable results (2026-09-30)</span>
+
+<span style="color:#ffd400">`RegistrationResult._to_dict()` / `RegistrationResult._from_dict(d)` and the same on
+`Warp1D` / `Warp1DList` (and the private affine variants, dispatched on a `"class"` key so that
+affine warps are rebuilt without normalisation). The dict holds plain values only — None, bool,
+int, float, str, numpy arrays, lists / tuples / dicts of these; `info` is deep-copied with numpy
+scalars converted — and stores class, method, t, t_original, y, y0, template, warps and info
+(y is stored because it is not `warps.apply(y0)` for every method, e.g. self-modelling). Round
+trip tested for all eleven result types including real time (`apply` / `unapply` identical).
+The public names read by external tools — method, islinear, J, Q, t, t_original, y, y0,
+template, warps, warps_t, displacement_fields, displacement_fields_t, inverse_warps, sse(),
+and the info keys — are treated as stable API from now on. 47 tests.</span>
 
 ### 2.7 Things learned the hard way (worth keeping in mind)
 

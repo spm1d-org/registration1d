@@ -412,6 +412,14 @@ class Warp1D(object):
         from . import plot
         return plot.plot_warps(self.w, ax=ax, **kwargs)
 
+    # --- semi-private serialisable form (plain values only; see reg.RegistrationResult._to_dict)
+    def _to_dict(self):
+        return {'class': self.__class__.__name__, 'w': self.w.copy()}
+
+    @staticmethod
+    def _from_dict(d):
+        return _WARP_CLASSES[d['class']](np.asarray(d['w'], dtype=float))
+
 
 
 class Warp1DList(list):
@@ -474,3 +482,17 @@ class Warp1DList(list):
     def plot(self, ax=None, **kwargs):
         from . import plot
         return plot.plot_warps(self.asarray(), ax=ax, **kwargs)
+
+    # --- semi-private serialisable form: the (J,Q) array plus the class name, on which
+    #     _from_dict dispatches (an affine warp list is rebuilt without normalisation)
+    def _to_dict(self):
+        return {'class': self.__class__.__name__, 'w': self.asarray()}
+
+    @staticmethod
+    def _from_dict(d):
+        return _WARP_CLASSES[d['class']](np.asarray(d['w'], dtype=float))
+
+
+
+# classes that _from_dict may rebuild, by name (reg.py adds its affine variants)
+_WARP_CLASSES = {'Warp1D': Warp1D, 'Warp1DList': Warp1DList}

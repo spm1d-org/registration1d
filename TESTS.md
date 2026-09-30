@@ -60,10 +60,16 @@ constant observation, a single observation, J = 2):
 - `result.unapply(result.y)` is close to `result.y0` (interpolation error only);
 - tuple unpacking `(yr, wf) = result` matches the attributes;
 - `t` handling: uniform `t` in other units leaves warps unchanged and rescales `warps_t` / `displacement_fields_t`; non-uniform `t` gives a uniform `result.t` with the same span;
-- no NaN or Inf anywhere in the outputs.
+- no NaN or Inf anywhere in the outputs;
+- serialisable form: `result._to_dict()` holds plain values only (None, bool,
+  int, float, str, numpy arrays, lists / tuples / dicts of these) and
+  `RegistrationResult._from_dict(d)` rebuilds the same class with the same warp
+  class, identical arrays and identical `apply` / `unapply` behaviour, including
+  affine warps (not re-normalised) and real-time results (exists:
+  `test_result_round_trip` over all eleven result types, `test_warp_round_trip`).
 
-Currently covered for SRSF and landmark; proposed as a single parametrised
-test over all entries of `reg.METHODS`.
+The first bullets are covered for SRSF and landmark; proposed as a single
+parametrised test over all entries of `reg.METHODS`.
 
 ## 5. Edge cases and error handling (proposed)
 

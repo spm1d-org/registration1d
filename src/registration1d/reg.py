@@ -156,6 +156,32 @@ class RegistrationResult(object):
         yield self.y
         yield self.warps.asarray()
 
+    # --- semi-private serialisable form ----------------------------------------------
+    #
+    # _to_dict returns a dict of plain values only (None, bool, int, float, str, numpy
+    # arrays, lists / tuples of these, and nested dicts of the same) so that a result can
+    # be stored or transported by code outside the package, which handles the encoding;
+    # Class._from_dict(d) rebuilds an equal result, including the exact warps (the warp
+    # entry carries its class name so that affine warps are not re-normalised) and the
+    # info entries needed by apply / unapply in the real-time case.
+
+    def _to_dict(self):
+        return {'class'      : self.__class__.__name__,
+                'method'     : self.method,
+                't'          : self.t.copy(),
+                't_original' : self.t_original.copy(),
+                'y'          : self.y.copy(),
+                'y0'         : self.y0.copy(),
+                'template'   : None if self.template is None else self.template.copy(),
+                'warps'      : self.warps._to_dict(),
+                'info'       : _plain(self.info)}
+
+    @staticmethod
+    def _from_dict(d):
+        cls = _RESULT_CLASSES[d['class']]
+        return cls(d['y'], d['y0'], _warp.Warp1DList._from_dict(d['warps']), template=d['template'],
+                   method=d['method'], info=_plain(d['info']), t=d['t'], t_original=d['t_original'])
+
     def __repr__(self):
         s  = f'{self.__class__.__name__} ({self.method})\n'
         s += f'    y        : {self.y.shape}\n'
@@ -277,6 +303,27 @@ class NonlinearRegistrationResult(RegistrationResult):
 
 
 
+_RESULT_CLASSES = {c.__name__: c  for c in (RegistrationResult, LinearRegistrationResult, NonlinearRegistrationResult)}
+
+
+def _plain(x):
+    '''Deep copy of *x* with numpy scalars converted to Python scalars, tuples kept as
+    tuples and Warp1D / Warp1DList objects replaced by their dicts; other values pass
+    through unchanged (ndarray, list, dict, None, bool, int, float, str).'''
+    if isinstance(x, dict):
+        return {k: _plain(v)  for k, v in x.items()}
+    if isinstance(x, (list, tuple)):
+        return type(x)(_plain(v)  for v in x)
+    if isinstance(x, (_warp.Warp1D, _warp.Warp1DList)):
+        return x._to_dict()
+    if isinstance(x, np.generic):
+        return x.item()
+    if isinstance(x, np.ndarray):
+        return x.copy()
+    return x
+
+
+
 class _AffineWarp(_warp.Warp1D):
     def __init__(self, w):
         self.w = np.asarray(w, dtype=float)
@@ -285,6 +332,8 @@ class _AffineWarps(_warp.Warp1DList):
     '''Warp1DList whose elements are not normalised to [0,1] (affine maps may leave the unit interval).'''
     def __init__(self, w):
         list.__init__(self, [_AffineWarp(ww)  for ww in np.atleast_2d(w)])
+
+_warp._WARP_CLASSES.update({'_AffineWarp': _AffineWarp, '_AffineWarps': _AffineWarps})
 
 
 

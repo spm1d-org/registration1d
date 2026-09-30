@@ -435,6 +435,73 @@ def test_auto_lam():
     assert np.abs(r.displacement_fields[:, :15]).max() < np.abs(r0.displacement_fields[:, :15]).max()
 
 
+# ------------------------------------------------------------------ serialisable form
+
+_PLAIN = (type(None), bool, int, float, str)
+
+def _is_plain(x):
+    """True if x holds only None / bool / int / float / str / ndarray / lists, tuples and dicts of these."""
+    if isinstance(x, _PLAIN) or isinstance(x, np.ndarray):
+        return True
+    if isinstance(x, (list, tuple)):
+        return all(_is_plain(v) for v in x)
+    if isinstance(x, dict):
+        return all(isinstance(k, str) and _is_plain(v) for k, v in x.items())
+    return False
+
+
+def _same(a, b):
+    """Deep equality of two plain structures (arrays compared with array_equal)."""
+    if isinstance(a, np.ndarray) or isinstance(b, np.ndarray):
+        return np.array_equal(np.asarray(a), np.asarray(b))
+    if isinstance(a, dict):
+        return isinstance(b, dict) and a.keys() == b.keys() and all(_same(a[k], b[k]) for k in a)
+    if isinstance(a, (list, tuple)):
+        return isinstance(b, (list, tuple)) and len(a) == len(b) and all(_same(x, y) for x, y in zip(a, b))
+    return a == b
+
+
+def _all_results(dorn):
+    yi, group = dorn
+    yl, _     = _dorn_ragged()
+    return [reg1d.register_linear(yl, n=Q),
+            reg1d.register_shift(yi),
+            reg1d.register_affine(yi, cover=True, fill_value='zero'),
+            reg1d.register_srsf(yi, max_iter=2),
+            reg1d.register_dtw(yi, derivative=True, smooth=0.03, max_iter=1),
+            reg1d.register_landmark(yi, kinds=('zero', 'max')),
+            reg1d.register_continuous(yi[:3], n_basis=3, max_iter=1),
+            reg1d.register_bayes(yi[:2], n_samples=10, burn=5, random_state=0, max_iter=1),
+            reg1d.register_pairwise(yi[:3]),
+            reg1d.register_sim(yi[:3], n_basis=3, max_iter=1),
+            reg1d.register_srsf(yl, t='fs=1000', max_iter=1)]          # real time
+
+
+def test_result_round_trip(dorn):
+    for r in _all_results(dorn):
+        d  = r._to_dict()
+        assert _is_plain(d), r.method
+        r2 = reg1d.RegistrationResult._from_dict(d)
+        assert type(r2) is type(r) and type(r2.warps) is type(r.warps) and r2.method == r.method
+        assert _same(r2._to_dict(), d), r.method                # exact round trip, warps included
+        for a in ('y', 'y0', 't', 't_original'):
+            assert np.array_equal(getattr(r2, a), getattr(r, a))
+        assert np.array_equal(r2.warps.asarray(), r.warps.asarray())
+        assert np.array_equal(r2.displacement_fields, r.displacement_fields)
+        z = r.y0 if not r.info.get('realtime') else _dorn_ragged()[0]
+        if not r.info.get('lengths') or r.info.get('realtime'):
+            assert np.array_equal(r2.apply(z), r.apply(z))
+            assert np.array_equal(r2.unapply(r.y), r.unapply(r.y))
+
+
+def test_warp_round_trip():
+    w  = warp.Warp1DList(warp.random_warp(3, Q, sigma=0.5, random_state=0))
+    w2 = warp.Warp1DList._from_dict(w._to_dict())
+    assert type(w2) is warp.Warp1DList and np.array_equal(w2.asarray(), w.asarray())
+    w1 = warp.Warp1D._from_dict(w[0]._to_dict())
+    assert type(w1) is warp.Warp1D and np.array_equal(w1.w, w[0].w)
+
+
 # ------------------------------------------------------------------ pyqtgraph backend (optional)
 
 def test_plotqt_backend(dorn, tmp_path):
