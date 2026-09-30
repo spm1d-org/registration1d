@@ -1,6 +1,6 @@
 # registration1d — summary of findings and suggestions for further development
 
-Date: 2026-09-29. Status: preliminary package (v0.0.2), 47 tests,
+Date: 2026-09-29. Status: preliminary package (v0.0.2), 48 tests,
 ten executed notebooks; source moved to the src layout for the public repository.
 
 <span style="color:#ffd400">**Highlighted text (yellow) marks additions and changes made after the review
@@ -62,7 +62,7 @@ Layout:
                       datasets, make_jikudata_notebook.py); power_simulated_datasets
                       (false-positive rate and power after registration, power1d
                       simulations, make_power_notebook.py + cached results .pkl)
-    tests/            pytest suite (47 tests)
+    tests/            pytest suite (48 tests)
     TESTS.md          test strategy;  PAPER-IDEAS.md  publication ideas
 
 ## 2. Key findings
@@ -279,6 +279,17 @@ trip tested for all eleven result types including real time (`apply` / `unapply`
 The public names read by external tools — method, islinear, J, Q, t, t_original, y, y0,
 template, warps, warps_t, displacement_fields, displacement_fields_t, inverse_warps, sse(),
 and the info keys — are treated as stable API from now on. 47 tests.</span>
+
+### <span style="color:#ffd400">2.6e Import without matplotlib (2026-09-30)</span>
+
+<span style="color:#ffd400">`plot.py` imports `matplotlib.pyplot` on first use (a `_pyplot()` helper) and
+`landmark.py` imports `scipy.signal.find_peaks` on first use, so `import registration1d` loads
+neither matplotlib nor scipy.signal: import time fell from about 1.4 s (with matplotlib) to
+about 0.5 s here, most of it scipy.interpolate / scipy.optimize, which the warps need.
+`test_no_eager_matplotlib` runs an import, an SRSF and a linear registration and `_to_dict()`
+in a fresh interpreter and asserts that matplotlib, pyqtgraph, PyQt6 and PySide6 are absent
+from `sys.modules`. matplotlib remains a declared dependency (it backs `result.plot()`);
+making it optional would be a further step. 48 tests.</span>
 
 ### 2.7 Things learned the hard way (worth keeping in mind)
 

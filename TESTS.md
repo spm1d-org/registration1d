@@ -71,6 +71,14 @@ constant observation, a single observation, J = 2):
 The first bullets are covered for SRSF and landmark; proposed as a single
 parametrised test over all entries of `reg.METHODS`.
 
+## 4a. Import cost (exists)
+
+`import registration1d` plus a registration and its serialisable form, run in a
+fresh interpreter, must not load matplotlib, pyqtgraph or a Qt binding
+(`test_no_eager_matplotlib`): `plot.py` imports pyplot on first use and
+`plotqt.py` imports pyqtgraph on first use, so processes that only compute and
+serialise results pay neither import; `result.plot()` behaves as before.
+
 ## 5. Edge cases and error handling (proposed)
 
 - constant observations (SRSF is identically zero: the DP must return the identity, not fail);

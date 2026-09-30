@@ -10,13 +10,18 @@ option) any later version. See the LICENSE file for details.
 '''
 
 import numpy as np
-from matplotlib import pyplot as plt
 from . import warp as _warp
 
 
+def _pyplot():
+    '''Import matplotlib.pyplot on first use, so that importing the package and
+    computing results never loads matplotlib.'''
+    from matplotlib import pyplot as plt
+    return plt
+
 
 def _gca(ax):
-    return plt.gca() if ax is None else ax
+    return _pyplot().gca() if ax is None else ax
 
 
 def plot_curves(y, group=None, ax=None, colors=None, x=None, legend=True, labels=None, **kwargs):
@@ -75,6 +80,7 @@ def plot_registration(result, group=None, colors=None, figsize=(12, 3.6), titles
 
     *result* : a RegistrationResult (or any object with .y0, .y and .warps)
     '''
+    plt = _pyplot()
     fig, AX = plt.subplots(1, 3, figsize=figsize)
     titles  = ('Before', 'After', 'Warps') if titles is None else titles
     plot_curves(result.y0, group=group, ax=AX[0], colors=colors, x='percent')

@@ -25,7 +25,7 @@ option) any later version. See the LICENSE file for details.
 '''
 
 import numpy as np
-from scipy import interpolate, signal
+from scipy import interpolate
 from . import warp as _warp
 
 
@@ -109,7 +109,8 @@ def peaks_as_landmarks(y, n_peaks, **kwargs):
     '''
     y  = np.asarray(y, dtype=float)
     t  = _warp.grid(y.size)
-    ind, props = signal.find_peaks(y, prominence=kwargs.pop('prominence', 0), **kwargs)
+    from scipy.signal import find_peaks               # imported on first use (scipy.signal is slow to load)
+    ind, props = find_peaks(y, prominence=kwargs.pop("prominence", 0), **kwargs)
     prom = props['prominences']
     top  = ind[np.argsort(prom)[::-1][:n_peaks]]
     return np.sort(t[top])

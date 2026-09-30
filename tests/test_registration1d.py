@@ -12,6 +12,7 @@ from registration1d import warp, srsf, dtw, landmark, continuous, linear
 Q = 101
 t = np.linspace(0, 1, Q)
 DATA = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'notebooks', 'data')
+SRC  = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'src')
 
 
 def _dorn_ragged():
@@ -500,6 +501,24 @@ def test_warp_round_trip():
     assert type(w2) is warp.Warp1DList and np.array_equal(w2.asarray(), w.asarray())
     w1 = warp.Warp1D._from_dict(w[0]._to_dict())
     assert type(w1) is warp.Warp1D and np.array_equal(w1.w, w[0].w)
+
+
+# ------------------------------------------------------------------ import cost
+
+def test_no_eager_matplotlib():
+    # importing the package and registering must not load matplotlib (or Qt); plotting
+    # imports it on first use
+    import subprocess, sys as _sys
+    code = ("import sys, numpy as np, registration1d as reg1d\n"
+            "y = np.random.default_rng(0).standard_normal((3, 51)).cumsum(axis=1)\n"
+            "r = reg1d.register_srsf(y, max_iter=1); r.apply(y); r._to_dict()\n"
+            "reg1d.register_linear([y[0], y[1, :40]], n=51)\n"
+            "bad = [m for m in ('matplotlib', 'pyqtgraph', 'PyQt6', 'PySide6') if m in sys.modules]\n"
+            "print('LOADED', bad)\n")
+    out = subprocess.run([_sys.executable, '-c', code], capture_output=True, text=True,
+                         env={**os.environ, 'PYTHONPATH': SRC})
+    assert out.returncode == 0, out.stderr
+    assert 'LOADED []' in out.stdout, out.stdout
 
 
 # ------------------------------------------------------------------ pyqtgraph backend (optional)
