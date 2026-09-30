@@ -54,7 +54,6 @@ from . import sim
 from . import realtime
 from . import reg
 from . import plot
-# registration1d.plotqt (PyQtGraph backend) is imported on demand: it needs the optional [qt] extra
 
 from .warp import Warp1D, Warp1DList, random_warp
 from .reg import (RegistrationResult, LinearRegistrationResult, NonlinearRegistrationResult,

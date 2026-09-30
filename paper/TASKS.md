@@ -54,7 +54,7 @@ Three of them shape the plan more than anything else and are put first.
     │   └── PULL_REQUEST_TEMPLATE.md
     ├── src/registration1d/         the package (src layout)
     │   ├── __init__.py  warp.py  srsf.py  dtw.py  landmark.py  continuous.py  sim.py
-    │   └── pairwise.py  bayes.py  realtime.py  linear.py  reg.py  plot.py  plotqt.py
+    │   └── pairwise.py  bayes.py  realtime.py  linear.py  reg.py  plot.py
     ├── tests/                      pytest suite split by TESTS.md tiers
     │   ├── test_warp.py  test_methods.py  test_edge_cases.py  test_reference.py  test_slow.py  test_plot.py
     │   └── conftest.py             shared fixtures (Dorn2012, simulated warps)

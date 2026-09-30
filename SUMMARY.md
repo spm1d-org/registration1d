@@ -1,7 +1,7 @@
 # registration1d — summary of findings and suggestions for further development
 
-Date: 2026-09-29. Status: preliminary package (v0.0.2), 48 tests,
-ten executed notebooks; source moved to the src layout for the public repository.
+Date: 2026-09-29. Status: preliminary package (v0.0.2), 47 tests,
+nine executed notebooks; source moved to the src layout for the public repository.
 
 <span style="color:#ffd400">**Highlighted text (yellow) marks additions and changes made after the review
 of the first version (2026-09-27, afternoon and evening).**</span>
@@ -53,16 +53,16 @@ Layout:
       realtime.py     real-time registration of observations of different lengths
       linear.py       resampling, shift and affine registration (fill rules, cover constraint)
       reg.py          public register_* functions and result classes
-      plot.py, plotqt.py (optional PyQtGraph backend)
+      plot.py
     notebooks/        util.py (example datasets, permutation tests), data/*.npz, data/*.csv
                       1-Registration, 2-Methods, 3-Warps, 4-Multivariate, WarpCenteringIssue,
                       Bayesian-vs-nlreg1d, RealTimeRegistration (+ html/, make_notebooks.py)
                       (WarpCentering replaces the earlier WarpCenteringIssue)
-                      PyQtGraph-backend; jiku-data-datasets (all 54 one-dimensional jiku-data
+                      jiku-data-datasets (all 54 one-dimensional jiku-data
                       datasets, make_jikudata_notebook.py); power_simulated_datasets
                       (false-positive rate and power after registration, power1d
                       simulations, make_power_notebook.py + cached results .pkl)
-    tests/            pytest suite (48 tests)
+    tests/            pytest suite (47 tests)
     TESTS.md          test strategy;  PAPER-IDEAS.md  publication ideas
 
 ## 2. Key findings
@@ -186,17 +186,15 @@ workflow cannot. Slope-constrained DTW step patterns cannot bridge large
 length ratios (e.g. 383 points versus a 101-point reference); a clear
 error message says so.</span>
 
-### <span style="color:#ffd400">2.5b PyQtGraph backend (notebook PyQtGraph-backend)</span>
+### <span style="color:#ffd400">2.5b PyQtGraph backend (removed 2026-09-30)</span>
 
-<span style="color:#ffd400">`registration1d.plotqt` mirrors `registration1d.plot` on PyQtGraph
-(MIT; optional `[qt]` extra, a Qt binding chosen by the user). Every
-function draws into a caller-supplied PlotItem / PlotWidget /
-GraphicsLayoutWidget or creates a stand-alone widget; no event loop is
-started; `to_image` renders off-screen for notebooks and tests;
-`set_theme` gives a Matplotlib-like light theme by default, PyQtGraph's
-dark theme, or leaves an application's own theme alone;
-`RegistrationResult.plot(backend='pyqtgraph')` is the shortcut. The
-core package never imports Qt.</span>
+<span style="color:#ffd400">A PyQtGraph backend (`plotqt.py`, `result.plot(backend='pyqtgraph')`, the
+`[qt]` extra and the PyQtGraph-backend notebook) existed from 2026-09-27 to 2026-09-30 and was
+removed before the first PyPI release: the package is meant to run as an independent process
+that returns serialised results, so plotting of received results belongs in the receiving
+application, and a Qt layer inside the GPL process has no consumer. Matplotlib (`plot.py`,
+`result.plot()`) remains the plotting route for direct users. The removed code, its test and
+notebook, and a handoff description are kept outside the repository.</span>
 
 ### <span style="color:#ffd400">2.6 Speed: numba estimate</span>
 
@@ -250,9 +248,9 @@ ground truth and by the simulations); `landmark.detect_landmarks` / `peaks_as_la
 (initial-guess front end for landmark registration, requested earlier);
 `srsf.amplitude_distance` / `phase_distance` (elastic metrics, part of the SRSF method);
 `realtime.py` (registration of ragged input). Flagged but kept pending a decision:
-`plot.py` and `plotqt.py` are not registration algorithms; they back `result.plot()` and the
-PyQtGraph backend that was requested explicitly, so they stay unless the rule is applied to
-plotting too (then `result.plot` would move to `notebooks/util.py` as well).</span>
+`plot.py` is not a registration algorithm; it stays because warp and result visualisation is
+part of a standard registration workflow (decided 2026-09-30; `plotqt.py` was removed the same
+day, see 2.5b).</span>
 
 ### <span style="color:#ffd400">2.6c Releasing to PyPI (2026-09-29)</span>
 
@@ -287,9 +285,9 @@ and the info keys — are treated as stable API from now on. 47 tests.</span>
 neither matplotlib nor scipy.signal: import time fell from about 1.4 s (with matplotlib) to
 about 0.5 s here, most of it scipy.interpolate / scipy.optimize, which the warps need.
 `test_no_eager_matplotlib` runs an import, an SRSF and a linear registration and `_to_dict()`
-in a fresh interpreter and asserts that matplotlib, pyqtgraph, PyQt6 and PySide6 are absent
+in a fresh interpreter and asserts that matplotlib (and any Qt binding) is absent
 from `sys.modules`. matplotlib remains a declared dependency (it backs `result.plot()`);
-making it optional would be a further step. 48 tests.</span>
+making it optional would be a further step. 47 tests.</span>
 
 ### 2.7 Things learned the hard way (worth keeping in mind)
 

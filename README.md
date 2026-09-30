@@ -10,7 +10,6 @@ registration package needs to be installed.
 ## Installation
 
     pip install registration1d            # from PyPI (numpy, scipy, matplotlib)
-    pip install "registration1d[qt]"      # + pyqtgraph for the PyQtGraph backend (add PyQt6 or PySide6)
 
 ## Installation (development)
 
@@ -18,13 +17,12 @@ registration package needs to be installed.
     cd registration1d
     python3 -m venv .venv
     source .venv/bin/activate          # Windows: .venv\Scripts\activate
-    pip install -e ".[dev,qt]" PySide6 # editable install + test/notebook tools + PyQtGraph backend (or PyQt6)
-    pytest                             # runs tests/ (the PyQtGraph test is skipped if pyqtgraph is absent)
+    pip install -e ".[dev]"            # editable install + test/notebook tools
+    pytest                             # runs tests/
 
 Requires Python 3.10 or later. Minimal install (numpy, scipy, matplotlib only): `pip install -e .`.
-Extras: `[qt]` adds pyqtgraph for `registration1d.plotqt` (a Qt binding such
-as PyQt6 or PySide6 must be installed separately); `[dev]` adds pytest and
-the notebook tools.
+Extras: `[dev]` adds pytest and the notebook tools; `[notebooks]` adds the
+datasets and simulation packages used by two of the notebooks.
 
 ## Quick start
 

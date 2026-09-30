@@ -26,7 +26,6 @@ classifiers = [
 ]
 
 [project.optional-dependencies]
-qt = ["pyqtgraph>=0.13"]
 dev = ["pytest", "jupyter", "nbformat", "nbconvert", "ipykernel"]
 notebooks = ["jiku-data", "power1d"]
 

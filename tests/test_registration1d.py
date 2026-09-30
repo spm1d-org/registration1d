@@ -519,23 +519,3 @@ def test_no_eager_matplotlib():
                          env={**os.environ, 'PYTHONPATH': SRC})
     assert out.returncode == 0, out.stderr
     assert 'LOADED []' in out.stdout, out.stdout
-
-
-# ------------------------------------------------------------------ pyqtgraph backend (optional)
-
-def test_plotqt_backend(dorn, tmp_path):
-    pg = pytest.importorskip('pyqtgraph')
-    import os
-    os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
-    from registration1d import plotqt
-    yi, group = dorn
-    r   = reg1d.register_srsf(yi, max_iter=1)
-    win = r.plot(group=group, backend='pyqtgraph')
-    assert len(win.plots) == 3
-    img = plotqt.to_image(win, tmp_path / 'reg.png')
-    assert img.width() > 0 and (tmp_path / 'reg.png').exists()
-    w   = plotqt.plot_displacement_fields(r.warps.asarray(), group=group)
-    assert plotqt.to_image(w, size=(300, 200)).height() == 200
-    # drawing into a caller-supplied PlotItem returns that same object
-    glw = pg.GraphicsLayoutWidget(); item = glw.addPlot()
-    assert plotqt.plot_curves(yi, group=group, plot=item) is item

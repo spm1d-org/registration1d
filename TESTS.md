@@ -75,9 +75,9 @@ parametrised test over all entries of `reg.METHODS`.
 
 `import registration1d` plus a registration and its serialisable form, run in a
 fresh interpreter, must not load matplotlib, pyqtgraph or a Qt binding
-(`test_no_eager_matplotlib`): `plot.py` imports pyplot on first use and
-`plotqt.py` imports pyqtgraph on first use, so processes that only compute and
-serialise results pay neither import; `result.plot()` behaves as before.
+(`test_no_eager_matplotlib`): `plot.py` imports pyplot on first use, so
+processes that only compute and serialise results never pay that import;
+`result.plot()` behaves as before.
 
 ## 5. Edge cases and error handling (proposed)
 
