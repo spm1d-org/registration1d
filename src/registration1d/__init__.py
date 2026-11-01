@@ -54,6 +54,7 @@ from . import sim
 from . import realtime
 from . import reg
 from . import plot
+from ._support import get_config
 
 from .warp import Warp1D, Warp1DList, random_warp
 from .reg import (RegistrationResult, LinearRegistrationResult, NonlinearRegistrationResult,
