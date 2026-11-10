@@ -2,6 +2,8 @@
 
 Linear and nonlinear registration of one-dimensional data.
 
+Find this package useful? Please press star ★ , thank you!
+
 `registration1d` aligns sets of 1D observations (e.g. biomechanical time series) in time.
 It depends only on `numpy`, `scipy` and `matplotlib`; the registration
 algorithms are implemented from their mathematical definitions, so no other
@@ -84,6 +86,10 @@ source is in `src/registration1d/`; the draft software paper is in `paper/`.
 ## Tests
 
     python -m pytest tests
+
+## Contributing
+
+Please see the [spm1d.org contributing guidelines and AI policy](https://spm1d.org/contributing/).
 
 ## License
 
