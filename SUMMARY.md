@@ -62,6 +62,8 @@ Layout:
                       datasets, make_jikudata_notebook.py); power_simulated_datasets
                       (false-positive rate and power after registration, power1d
                       simulations, make_power_notebook.py + cached results .pkl)
+                      srsf-defaults (run time and effect of each register_srsf default on
+                      seven datasets, make_defaults_notebook.py + cached results .pkl)
     tests/            pytest suite (47 tests)
     TESTS.md          test strategy;  PAPER-IDEAS.md  publication ideas
 
@@ -207,6 +209,23 @@ array instead of 23 masked assignments per row. One Q = 150 alignment fell from 
 from 147 s to 22 s here (12 s with `parallel=True` on two cores), Weather (Q = 365, 5 iterations)
 from ~100 s to 5 s. The numba estimate below (section 2.6) predates this and is now moot for
 the DP; the remaining cost is the Karcher iteration count (`max_iter=20`, `tol=1e-3`).</span>
+
+### <span style="color:#ffd400">2.5d The register_srsf defaults (notebook srsf-defaults, 2026-11-19)</span>
+
+<span style="color:#ffd400">Each default varied one at a time on Lencioni2019, Gutenberg, Reznick2021,
+Weather, Dorn2012 (multivariate and real time) and SPM1D_ANOVA2_2x2, full sets plus random
+subsets of J = 5, 10, 20 (566 runs, 12 min). Conclusions: keep every default. `max_iter=20`
+converges in 11-20 iterations on real data and `max_iter=5` is within 0.01 of the domain at a
+quarter of the cost (the documented exploratory setting); `tol` and `nsub` change the warps by
+≤ 0.02 either way; `max_step=6` sits in the flat part of the cost / accuracy curve and 3 is
+infeasible for real-time registration with length ratios above 3; `lam='auto'` is the setting
+that matters — `lam=0` moves the warps by 0.04-0.17 and on the nearly flat Gutenberg curves
+increases the residual by 34 %; `parallel` gives ~1.9× on two cores for J ≥ 50 and nothing for
+J = 8. The sample-size effect (subset vs full-sample warps, 0.015-0.03) is as large as any
+setting except `lam`. A non-converged run (niter == max_iter) marks featureless data and could
+be warned about. Side observation: on the three-component Dorn2012 data the vector-SRSF
+registration raises the SSE by 26 % under every setting (one component dominates) —
+per-component standardisation is the candidate fix, to be tested separately.</span>
 
 ### <span style="color:#ffd400">2.6 Speed: numba estimate</span>
 
