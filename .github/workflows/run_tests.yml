@@ -34,3 +34,18 @@ jobs:
 
       - name: Run tests
         run: python -m pytest tests/ -ra
+
+  reference:
+    name: agreement with reference implementations (Python 3.13)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Install package with test and reference extras
+        run: |
+          python -m pip install -U pip
+          python -m pip install -e ".[dev,reference]"
+      - name: Run the reference-agreement tests
+        run: python -m pytest tests/test_reference.py -ra

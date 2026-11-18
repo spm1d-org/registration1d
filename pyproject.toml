@@ -29,6 +29,7 @@ classifiers = [
 [project.optional-dependencies]
 dev = ["pytest", "jupyter", "nbformat", "nbconvert", "ipykernel"]
 notebooks = ["jiku-data", "power1d"]
+reference = ["fdasrsf", "dtw-python", "scikit-fda"]
 
 [project.urls]
 Homepage = "https://github.com/spm1d-org/registration1d"

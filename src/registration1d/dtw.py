@@ -74,7 +74,7 @@ def dtw_path(x, y, step_pattern='symmetric2', window=None, p=2):
     D[0, 0] = C[0, 0]
     if window is not None:
         ii, jj = np.meshgrid(np.arange(n), np.arange(m), indexing='ij')
-        allowed = np.abs(ii / max(n-1, 1) - jj / max(m-1, 1)) <= window
+        allowed = np.abs(ii / max(n-1, 1) - jj / max(m-1, 1)) <= window + 1e-12   # tolerance: a cell on the band edge is inside
     else:
         allowed = np.ones((n, m), dtype=bool)
     # strictly row-major recursion; steps with di==0 depend on the same row,

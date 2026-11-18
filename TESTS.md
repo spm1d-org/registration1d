@@ -39,15 +39,17 @@ over method x warp strength x noise level x Q) with method-specific
 tolerances, run in the "slow" tier; recovery with non-uniform `t`; recovery
 when the template is given explicitly.
 
-## 3. Agreement with reference implementations (partly exist, optional)
+## 3. Agreement with reference implementations (exist; `tests/test_reference.py`, skipped without the `[reference]` extra)
 
-- DTW: identical path and distance to `dtw-python` for `symmetric1`, `symmetric2`, `asymmetric` and the Sakoe-Chiba window (verified by hand in this session; proposed as a test that is skipped when `dtw-python` is not installed);
-- SRSF: warps within 0.02 (7 of 8 observations) of `fdasrsf.srsf_align` on Dorn2012 (verified in notebook 1; proposed as a skip-if-missing test);
-- shift registration versus `scikit-fda` `LeastSquaresShiftRegistration` (proposed).
+- DTW: identical path and distance to `dtw-python` for `symmetric1`, `symmetric2` and the Sakoe-Chiba band (5, 10 and 20 nodes); identical distance for `asymmetric` (the path may differ where several paths tie);
+- SRSF: group alignment of Dorn2012 (`lam=0`, five iterations) gives warps within 0.03 of the domain of `fdasrsf.fdawarp.srsf_align` for every observation, median below 0.01;
+- shift registration: the same shifts as `scikit-fda`'s `LeastSquaresShiftRegistration` within 1e-4 once the reference's shifts are mean-centered (registration1d removes the mean shift).
 
-These tests are run only in a development environment where the reference
-packages are installed; they are `pytest.importorskip`-guarded so that the
-default suite stays dependency-free.
+The tests are `pytest.importorskip`-guarded so that the default suite stays
+dependency-free; the GitHub test workflow runs them in a separate job that
+installs the `[reference]` extra on one Python version. A tolerance of 1e-12 on
+the Sakoe-Chiba band edge (`dtw.dtw_path`) was needed for exact agreement: a
+cell exactly on the band edge belongs inside it.
 
 ## 4. Invariants that every RegistrationResult must satisfy (partly exist)
 
@@ -127,7 +129,8 @@ Proposed layout:
     tests/test_slow.py          groups 2 (matrix), 7, 9  (marked slow)
     tests/test_plot.py          group 8
 
-GitHub Actions: a matrix over Python 3.10-3.13 and Linux / macOS running the
-fast tiers on every push, the slow tier and the notebook build nightly or
-on pull requests, and a separate job that installs `fdasrsf` and
-`dtw-python` and runs the reference-agreement tests.
+GitHub Actions: a matrix over Python 3.10-3.14 on Linux running the full
+suite on every push and pull request (exists), a separate job that installs
+the `[reference]` extra and runs the reference-agreement tests (exists,
+Python 3.13), and the slow tier and the notebook build nightly or on pull
+requests (proposed).
