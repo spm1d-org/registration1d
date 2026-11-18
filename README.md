@@ -1,3 +1,9 @@
+[![Python](https://img.shields.io/badge/Python-FFD43B?style=for-the-badge&logo=python&logoColor=blue)](https://www.python.org)
+[![Numpy](https://img.shields.io/badge/Numpy-777BB4?style=for-the-badge&logo=numpy&logoColor=white)](https://numpy.org)
+[![Scipy](https://img.shields.io/badge/SciPy-654FF0?style=for-the-badge&logo=SciPy&logoColor=white)](https://scipy.org)
+[![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+![version](https://img.shields.io/badge/version-0.0.2-blue)
+
 # registration1d
 
 Linear and nonlinear registration of one-dimensional data.
@@ -24,7 +30,9 @@ registration package needs to be installed.
 
 Requires Python 3.10 or later. Minimal install (numpy, scipy, matplotlib only): `pip install -e .`.
 Extras: `[dev]` adds pytest and the notebook tools; `[notebooks]` adds the
-datasets and simulation packages used by two of the notebooks.
+datasets and simulation packages used by two of the notebooks; `[reference]`
+adds fdasrsf, dtw-python and scikit-fda for the tests that compare
+registration1d with those implementations (skipped when they are absent).
 
 ## Quick start
 
