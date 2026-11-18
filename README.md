@@ -15,7 +15,7 @@ registration package needs to be installed.
 
 ## Installation (development)
 
-    git clone https://github.com/0todd0000/registration1d.git
+    git clone https://github.com/spm1d-org/registration1d.git
     cd registration1d
     python3 -m venv .venv
     source .venv/bin/activate          # Windows: .venv\Scripts\activate
@@ -93,4 +93,4 @@ Please see the [spm1d.org contributing guidelines and AI policy](https://spm1d.o
 
 ## License
 
-GNU General Public License v3.0 or later. See `LICENSE`.
+GNU General Public License v3.0 or later. See `LICENSE.txt`.

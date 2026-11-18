@@ -8,8 +8,8 @@ version = "0.0.2"
 description = "Linear and nonlinear registration of one-dimensional data"
 readme = "README.md"
 license = "GPL-3.0-or-later"
-license-files = ["LICENSE"]
-authors = [{name = "Todd Pataky"}]
+license-files = ["LICENSE.txt"]
+authors = [{name = "Todd Pataky", email = "spm1d.mail@gmail.com"}]
 requires-python = ">=3.10"
 dependencies = [
     "numpy>=1.22",
@@ -22,6 +22,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Scientific/Engineering",
 ]
 
@@ -30,9 +31,9 @@ dev = ["pytest", "jupyter", "nbformat", "nbconvert", "ipykernel"]
 notebooks = ["jiku-data", "power1d"]
 
 [project.urls]
-Homepage = "https://github.com/0todd0000/registration1d"
-Source = "https://github.com/0todd0000/registration1d"
-Issues = "https://github.com/0todd0000/registration1d/issues"
+Homepage = "https://github.com/spm1d-org/registration1d"
+Source = "https://github.com/spm1d-org/registration1d"
+Issues = "https://github.com/spm1d-org/registration1d/issues"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

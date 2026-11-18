@@ -1,7 +1,7 @@
 # GPL compliance status of third-party code
 
 `registration1d` is to be released under the GNU General Public License v3.0 or later
-(GPL-3.0-or-later; the full text is in `LICENSE`). This document records the
+(GPL-3.0-or-later; the full text is in `LICENSE.txt`). This document records the
 licensing status of every third-party package that `registration1d` imports, every
 package whose code was consulted, and every package that was *not* used and
 why. Compatibility judgements follow the Free Software Foundation's list of
@@ -79,8 +79,9 @@ installed package: they live in `notebooks/data/`.)
 
 ## 5. Summary
 
-- Every module in `registration1d` carries a GPL-3.0-or-later header and the full
-  license text is distributed in `LICENSE`.
+- Every algorithm module in `registration1d` carries a GPL-3.0-or-later header
+  (`_support.py`, shared with the other spm1d.org packages, carries the copyright
+  line only) and the full license text is distributed in `LICENSE.txt`.
 - All runtime dependencies (numpy, scipy, matplotlib) are permissively
   licensed and GPL-compatible.
 - No third-party registration code is imported or copied; `fdasrsf` and

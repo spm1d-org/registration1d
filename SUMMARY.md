@@ -258,7 +258,7 @@ day, see 2.5b).</span>
 release: it re-runs the tests on the released commit, builds sdist + wheel, checks that the
 release tag equals `v<version>` (or `<version>`) from `pyproject.toml`, and publishes with
 trusted publishing (`id-token: write`, environment `pypi`, `skip-existing: true`). One-time
-setup on pypi.org: Account → Publishing → add a pending publisher (owner `0todd0000`,
+setup on pypi.org: Account → Publishing → add a pending publisher (owner `spm1d-org`,
 repository `registration1d`, workflow `push_pypi.yml`, environment `pypi`). Release procedure:
 bump `version` in `pyproject.toml` and `__init__.py`, commit, push, create a GitHub release
 with tag `v<version>`. `pyproject.toml` uses the SPDX `license` string with `license-files`

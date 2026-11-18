@@ -36,7 +36,7 @@ Three of them shape the plan more than anything else and are put first.
 ### 1.1 Proposed structure of the new GitHub repository `registration1d`
 
     registration1d/                          <- repository root (public; GPL-3.0-or-later)
-    ├── LICENSE                     GPL-3.0-or-later full text
+    ├── LICENSE.txt                 GPL-3.0-or-later full text
     ├── README.md                   what it is, install, 10-line example, link to docs, how to cite
     ├── CITATION.cff                citation metadata (JOSS reads this; Zenodo uses it)
     ├── CONTRIBUTING.md             how to report issues, propose changes, run tests, style (spaces, 4)
@@ -83,7 +83,7 @@ Notes on the structure:
 
 ### 1.2 Repository set-up tasks
 
-- [x] Create the public repository (github.com/0todd0000/registration1d).
+- [x] Create the public repository (github.com/spm1d-org/registration1d).
 - [ ] Decide the AI-usage wording (0.3).
 - [x] Import code (full development history carried over).
 - [ ] Tag `v0.1.0` once tests and docs pass on GitHub Actions.
