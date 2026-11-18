@@ -191,9 +191,17 @@ def _segment_costs(q1, q2, di, dj, dt1=None, dt2=None, nsub=4):
     Jx    = np.arange(n2)[:, None] + s_idx*u[None, :]   # (n2, m) fractional column indices
     Q1i   = _interp_q(I, np.arange(Q1), q1)         # (n1, m[, D])
     Q2i   = _interp_q(Jx, np.arange(Q2), q2) * np.sqrt(s)   # (n2, m[, D])
-    D     = Q1i[:, None, ...] - Q2i[None, :, ...]   # (n1, n2, m[, D])
-    D2    = D**2 if q1.ndim == 1 else (D**2).sum(axis=-1)
-    E     = dt * (D2[..., 1:] + D2[..., :-1]).sum(axis=-1) / 2.0
+    # trapezoidal weights over the m sub-samples; the squared difference expands to
+    # |a|^2 + |b|^2 - 2 a.b, so the (n1, n2) cost matrix is two row/column sums and
+    # one matrix product instead of an (n1, n2, m) temporary
+    w     = np.full(m, dt); w[0] = w[-1] = dt / 2.0
+    if q1.ndim == 1:
+        A, B = Q1i, Q2i                             # (n1, m), (n2, m)
+    else:
+        A = Q1i.reshape(n1, -1)                     # (n1, m*D), weights repeated per component
+        B = Q2i.reshape(n2, -1)
+        w = np.repeat(w, q1.shape[1])
+    E     = (A**2 @ w)[:, None] + (B**2 @ w)[None, :] - 2.0 * (A * w) @ B.T
     return E
 
 
@@ -228,6 +236,7 @@ def align_srsf_pair(q1, q2, max_step=6, nsub=4, lam=0.0, band=None, dt1=None, dt
     dt1   = 1.0/(Q1-1) if dt1 is None else dt1
     dt2   = 1.0/(Q2-1) if dt2 is None else dt2
     steps = _slope_set(max_step)
+    sdi   = np.array([d for d, _ in steps]); sdj = np.array([d for _, d in steps])
     E     = {}
     for (di, dj) in steps:
         e   = _segment_costs(q1, q2, di, dj, dt1, dt2, nsub=nsub)
@@ -241,23 +250,25 @@ def align_srsf_pair(q1, q2, max_step=6, nsub=4, lam=0.0, band=None, dt1=None, dt
     D[0, 0] = 0.0
     if band is not None:
         jj    = np.arange(Q2) / (Q2 - 1)
+    nstep = len(steps)
+    cand  = np.empty((nstep, Q2))                 # candidate costs of row i, one row per step
     for i in range(1, Q1):
-        for (di, dj) in steps:
+        cand.fill(INF)
+        for k, (di, dj) in enumerate(steps):
             e   = E[(di, dj)]
             i0  = i - di
             if i0 < 0 or e is None:
                 continue
-            jmax   = Q2 - dj                     # start columns 0..jmax-1  ->  end columns dj..Q2-1
-            cand   = D[i0, :jmax] + e[i0, :]
-            cur    = D[i, dj:]
-            better = cand < cur
-            if np.any(better):
-                D[i, dj:][better]    = cand[better]
-                P[i, dj:][better, 0] = i0
-                P[i, dj:][better, 1] = np.arange(jmax)[better]
+            jmax = Q2 - dj                       # start columns 0..jmax-1  ->  end columns dj..Q2-1
+            cand[k, dj:] = D[i0, :jmax] + e[i0, :]
+        best  = cand.argmin(axis=0)              # best step for every end column of row i
+        val   = cand[best, np.arange(Q2)]
+        ok    = np.isfinite(val)
         if band is not None:                     # forbid nodes outside the band (normalised time)
-            out = np.abs(jj - i / (Q1 - 1)) > band + 1e-12
-            D[i, out] = INF
+            ok &= np.abs(jj - i / (Q1 - 1)) <= band + 1e-12
+        D[i, ok]    = val[ok]
+        P[i, ok, 0] = i - sdi[best[ok]]
+        P[i, ok, 1] = np.arange(Q2)[ok] - sdj[best[ok]]
     # backtrack from (Q1-1, Q2-1)
     i, j  = Q1-1, Q2-1
     if not np.isfinite(D[i, j]):

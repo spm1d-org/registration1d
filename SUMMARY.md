@@ -196,6 +196,18 @@ application, and a Qt layer inside the GPL process has no consumer. Matplotlib (
 `result.plot()`) remains the plotting route for direct users. The removed code, its test and
 notebook, and a handoff description are kept outside the repository.</span>
 
+### <span style="color:#ffd400">2.5c Dynamic-programming speed-up (2026-11-19)</span>
+
+<span style="color:#ffd400">Two pure-numpy changes in `srsf.py`, output bitwise identical to before
+(checked on Reznick2021 pairs with and without `band` / `lam`; 51 tests pass): the segment
+costs are computed as |a|² + |b|² − 2 a·b with one matrix product per slope instead of an
+(n1, n2, m) temporary, and the DP row update takes an `argmin` over a (steps, Q2) candidate
+array instead of 23 masked assignments per row. One Q = 150 alignment fell from 63 ms to 10 ms
+(6.5×); `register_srsf` on jiku-data's Reznick2021 (150 × 150, default settings, 18 iterations)
+from 147 s to 22 s here (12 s with `parallel=True` on two cores), Weather (Q = 365, 5 iterations)
+from ~100 s to 5 s. The numba estimate below (section 2.6) predates this and is now moot for
+the DP; the remaining cost is the Karcher iteration count (`max_iter=20`, `tol=1e-3`).</span>
+
 ### <span style="color:#ffd400">2.6 Speed: numba estimate</span>
 
 <span style="color:#ffd400">Measured on this machine (2 cores), Q = 101, max_step = 6: the pure-numpy
