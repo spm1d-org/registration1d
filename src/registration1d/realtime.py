@@ -198,6 +198,7 @@ def align_group_srsf(y, t=None, n_ref=101, T_ref=None, template='karcher', metho
     gam   = np.zeros((J, n_ref))
     costs = []
     niter = 0
+    change = 0.0
     for it in range(1 if fixed else max_iter):
         niter += 1
         qn = []
@@ -223,11 +224,14 @@ def align_group_srsf(y, t=None, n_ref=101, T_ref=None, template='karcher', metho
         mq     = mq_new
         if change < tol:
             break
+    if not fixed and change >= tol:
+        _srsf._warn_not_converged(niter, change, tol)
     if center != 'none' and J > 1:
         gam, gmean = _warp.center_warps(gam, method=center, anchor=anchor)
         mq         = _srsf.warp_srsf(mq, _warp.invert(gmean))
     qn   = np.array([_warp_q_realtime(q[i], gam[i], durations[i], Tr)  for i in range(J)])
-    out  = _package(ylist, tlist, durations, tau, gam, None, dict(q=qn, niter=niter, cost=np.array(costs), lam=lam, center=center))
+    out  = _package(ylist, tlist, durations, tau, gam, None, dict(q=qn, niter=niter, cost=np.array(costs), lam=lam, center=center,
+                                                                 converged=bool(fixed or change < tol)))
     f0   = out['y'][:, 0].mean(axis=0)
     out['template'] = _srsf_inverse_realtime(mq, f0, dtr)
     return out

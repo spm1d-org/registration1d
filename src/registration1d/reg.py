@@ -402,7 +402,12 @@ def register_srsf(y, t=None, template='karcher', method='mean', max_iter=20, tol
     *y*         : (J,Q) array, or (J,Q,D) array of D-variate observations
     *template*  : 'karcher' | 'first' | int | (Q,) array
     *method*    : 'mean' (Karcher mean template) or 'median' (Karcher median)
-    *max_iter*  : maximum number of template updates
+    *max_iter*  : maximum number of template updates; the iteration stops when
+                  the relative change of the template falls below *tol*. If it
+                  has not by max_iter a ConvergenceWarning is issued and
+                  info['converged'] is False: this is the behaviour on data
+                  without common features (e.g. smooth noise), whose warps are
+                  not determined by the data
     *center*    : 'karcher' (default, = True) | 'pointwise' | 'anchor' | 'none' (= False):
                   choice of the common time axis of the registered data (see
                   warp.center_warps and the WarpCentering notebook)
@@ -433,14 +438,15 @@ def register_srsf(y, t=None, template='karcher', method='mean', max_iter=20, tol
         r = _realtime.align_group_srsf(y, t=t, n_ref=n_ref, T_ref=T_ref, template=template, method=method,
             max_iter=max_iter, tol=tol, center=center, anchor=anchor, max_step=max_step, nsub=nsub, lam=lam,
             band=band, smooth=smooth, verbose=verbose)
-        return _realtime_result(r, 'srsf', ('q', 'niter', 'cost', 'lam', 'center'))
+        return _realtime_result(r, 'srsf', ('q', 'niter', 'cost', 'lam', 'center', 'converged'))
     yu, tu, t0 = _prepare_grid(y, t)
     anchor = _resolve_anchor(anchor, yu)
     r = _srsf.align_group(yu, template=template, method=method, max_iter=max_iter, tol=tol,
         center=center, anchor=anchor, max_step=max_step, nsub=nsub, lam=lam, band=band, smooth=smooth,
         refine=refine, parallel=parallel, verbose=verbose)
     return NonlinearRegistrationResult(r['y'], yu, r['warps'], r['template'], 'srsf',
-        dict(niter=r['niter'], cost=r['cost'], q=r['q'], lam=r['lam'], center=r['center']), t=tu, t_original=t0)
+        dict(niter=r['niter'], cost=r['cost'], q=r['q'], lam=r['lam'], center=r['center'], converged=r['converged']),
+        t=tu, t_original=t0)
 
 
 def register_dtw(y, t=None, template='mean', max_iter=10, step_pattern='symmetric2', window=None,

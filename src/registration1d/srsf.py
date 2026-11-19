@@ -37,10 +37,24 @@ Free Software Foundation, either version 3 of the License, or (at your
 option) any later version. See the LICENSE file for details.
 '''
 
+import warnings
 import numpy as np
 from scipy import integrate
 from math import gcd
 from . import warp as _warp
+
+
+class ConvergenceWarning(UserWarning):
+    '''The Karcher iteration of an SRSF group registration did not converge.'''
+
+
+def _warn_not_converged(niter, change, tol):
+    warnings.warn(
+        f'SRSF registration did not converge in {niter} iterations (relative template change '
+        f'{change:.2g} > tol={tol:g}). This happens when the observations share no common features '
+        f'(e.g. smooth noise): the warps are then not determined by the data and the registered '
+        f'data should not be trusted. Check the data, or raise max_iter if the change is still '
+        f'decreasing.', ConvergenceWarning, stacklevel=3)
 
 
 
@@ -430,6 +444,7 @@ def align_group(y, template='karcher', method='mean', max_iter=20, tol=1e-3, cen
     gam   = np.tile(t, (J, 1))
     costs = []
     niter = 0
+    change = 0.0
     try:
         for it in range(1 if fixed else max_iter):
             niter += 1
@@ -454,6 +469,8 @@ def align_group(y, template='karcher', method='mean', max_iter=20, tol=1e-3, cen
     finally:
         if pool is not None:
             pool.shutdown()
+    if not fixed and change >= tol:
+        _warn_not_converged(niter, change, tol)
     # --- center the warps
     if center != 'none' and J > 1:
         gam, gmean = _warp.center_warps(gam, method=center, anchor=anchor)
@@ -463,7 +480,8 @@ def align_group(y, template='karcher', method='mean', max_iter=20, tol=1e-3, cen
     if not fixed:
         mf0 = f0(yr).mean(axis=0)
     mf    = srsf_inverse_mv(mq, mf0) if mv else srsf_inverse(mq, mf0)
-    return dict(y=yr, warps=gam, template=mf, q=qn, niter=niter, cost=np.array(costs), lam=lam, center=center)
+    return dict(y=yr, warps=gam, template=mf, q=qn, niter=niter, cost=np.array(costs), lam=lam, center=center,
+                converged=bool(fixed or change < tol))
 
 
 def auto_lam(q, mq=None, t=None):

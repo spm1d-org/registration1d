@@ -503,6 +503,25 @@ def test_warp_round_trip():
     assert type(w1) is warp.Warp1D and np.array_equal(w1.w, w[0].w)
 
 
+# ------------------------------------------------------------------ convergence warning
+
+def test_convergence_warning_on_noise():
+    import warnings
+    from scipy.ndimage import gaussian_filter1d
+    rng   = np.random.default_rng(0)
+    noise = gaussian_filter1d(rng.standard_normal((12, Q)), 8, axis=1)   # smooth fields, no common features
+    with pytest.warns(reg1d.ConvergenceWarning):
+        r = reg1d.register_srsf(noise, max_iter=3)
+    assert r.info['converged'] is False and r.info['niter'] == 3
+    y = np.array([_bump(warp.random_warp(1, Q, sigma=0.3, random_state=i))  for i in range(6)])
+    with warnings.catch_warnings():
+        warnings.simplefilter('error', reg1d.ConvergenceWarning)             # must not warn on registrable data
+        r = reg1d.register_srsf(y)
+    assert r.info['converged'] is True and r.info['niter'] < 20
+    with pytest.warns(reg1d.ConvergenceWarning):                             # real-time path
+        reg1d.register_srsf([noise[i, :Q - 10 * (i % 3)]  for i in range(6)], t=0.01, max_iter=2)
+
+
 # ------------------------------------------------------------------ import cost
 
 def test_no_eager_matplotlib():

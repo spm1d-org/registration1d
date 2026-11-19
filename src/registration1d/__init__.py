@@ -57,6 +57,7 @@ from . import plot
 from ._support import get_config
 
 from .warp import Warp1D, Warp1DList, random_warp
+from .srsf import ConvergenceWarning
 from .reg import (RegistrationResult, LinearRegistrationResult, NonlinearRegistrationResult,
     register, register_linear, register_shift, register_affine, register_srsf, register_dtw,
     register_landmark, register_continuous, register_bayes, register_pairwise, register_sim)

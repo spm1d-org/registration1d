@@ -227,6 +227,21 @@ be warned about. Side observation: on the three-component Dorn2012 data the vect
 registration raises the SSE by 26 % under every setting (one component dominates) —
 per-component standardisation is the candidate fix, to be tested separately.</span>
 
+### <span style="color:#ffd400">2.5e Convergence warning (2026-11-19)</span>
+
+<span style="color:#ffd400">`register_srsf` (normalised-time and real-time paths) issues a
+`reg1d.ConvergenceWarning` when the Karcher iteration reaches `max_iter` with the relative
+template change still above `tol`, and records `info['converged']`. On the data of the defaults
+study this happens only on the featureless random-field set (and, by construction, when
+`max_iter` is set very small on real data). Tests use small `max_iter` deliberately, so
+`tests/conftest.py` filters the warning except in `test_convergence_warning_on_noise`.
+The multivariate Dorn2012 SSE increase (2.5d) was examined: it is not a scaling artefact —
+standardising the components makes it larger (1.35) — but a conflict in timing between the
+components: the warps that align the vertical force alone (its SSE ratio 0.67) raise the SSE of
+the other two components to 1.24-1.28, and vice versa; the joint warp is a compromise. An SSE
+increase in some components is therefore expected whenever the components disagree about
+timing, and no algorithmic change is proposed.</span>
+
 ### <span style="color:#ffd400">2.6 Speed: numba estimate</span>
 
 <span style="color:#ffd400">Measured on this machine (2 cores), Q = 101, max_step = 6: the pure-numpy
