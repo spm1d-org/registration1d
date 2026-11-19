@@ -298,18 +298,20 @@ ground truth and by the simulations); `landmark.detect_landmarks` / `peaks_as_la
 part of a standard registration workflow (decided 2026-09-30; `plotqt.py` was removed the same
 day, see 2.5b).</span>
 
-### <span style="color:#ffd400">2.6c Releasing to PyPI (2026-09-29)</span>
+### <span style="color:#ffd400">2.6c Releasing to PyPI (2026-09-29, revised 2026-11-19)</span>
 
-<span style="color:#ffd400">`.github/workflows/push_pypi.yml` publishes on a published GitHub
-release: it re-runs the tests on the released commit, builds sdist + wheel, checks that the
-release tag equals `v<version>` (or `<version>`) from `pyproject.toml`, and publishes with
-trusted publishing (`id-token: write`, environment `pypi`, `skip-existing: true`). One-time
-setup on pypi.org: Account → Publishing → add a pending publisher (owner `spm1d-org`,
-repository `registration1d`, workflow `push_pypi.yml`, environment `pypi`). Release procedure:
-bump `version` in `pyproject.toml` and `__init__.py`, commit, push, create a GitHub release
-with tag `v<version>`. `pyproject.toml` uses the SPDX `license` string with `license-files`
-(setuptools ≥ 77) and a `MANIFEST.in` that keeps notebooks, tests and paper out of the sdist;
-`python -m build` + `twine check` pass locally, and the wheel (70 KB) imports cleanly.</span>
+<span style="color:#ffd400">`.github/workflows/publish.yml` (the rft1d / power1d model) publishes when a
+`v*` tag is pushed: it checks that the tagged commit is on `main` and that the tag matches the
+version in `src/registration1d/__init__.py`, `pyproject.toml` and the README badge
+(`scripts/update_version.py --check`), runs the test workflow, builds and `twine check`s,
+uploads with trusted publishing (environment `pypi`) and creates the GitHub release with
+generated notes. Release procedure: `python scripts/update_version.py X.Y.Z`,
+`git commit -am "version X.Y.Z"`, `git tag vX.Y.Z`, `git push && git push --tags`. One-time
+setup on pypi.org: Account → Publishing → add a pending publisher (project `registration1d`,
+owner `spm1d-org`, repository `registration1d`, workflow `publish.yml`, environment `pypi`),
+and a `pypi` environment in the GitHub repository settings. `pyproject.toml` uses the SPDX
+`license` string with `license-files` and a `MANIFEST.in` that keeps notebooks, tests and paper
+out of the sdist.</span>
 
 ### <span style="color:#ffd400">2.6d Serialisable results (2026-09-30)</span>
 

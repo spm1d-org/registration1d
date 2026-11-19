@@ -1,10 +1,15 @@
 name: test
 
+# publish.yml calls this workflow (workflow_call) so that a release is gated
+# on a green test run.
+
 on:
   push:
     branches: ['main']
   pull_request:
     branches: ['main']
+  workflow_dispatch:
+  workflow_call:
 
 permissions:
   contents: read
